@@ -1,3 +1,4 @@
+/*добавила файл с  функциями*/
 
 const checkLength = (string = '', maxSymbols = 1) => string.length <= maxSymbols;
 
@@ -15,4 +16,4 @@ const isPalindrome = (string) => {
 checkLength();
 isPalindrome();
 
-/*добавила функции*/
+
