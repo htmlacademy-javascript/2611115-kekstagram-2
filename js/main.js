@@ -1,5 +1,5 @@
 /*написла функции*/
-const PHOTO_PICTURE = 25;
+const PHOTO_AMOUNT = 25;
 const COMMENT_NAMES = ['Артём', 'Мария', 'Иван', 'Ольга', 'Дмитрий', 'Анна', 'Сергей'];
 const COMMENT_MESSAGES = [
   'В целом всё неплохо. Но не всё',
@@ -9,7 +9,7 @@ const COMMENT_MESSAGES = [
   'лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
 
-const LANDSCAPE = [
+const DESCRIPTIONS = [
   'Фото в прекрасный день',
   'Момент из путешествия',
   'Семейное фото',
@@ -60,16 +60,17 @@ const createPhotoComments = () => {
 
 const createPhoto = (id) => ({
   id,
-  url: `createPhotoComment/${id}.jpg`,
-  description: getRandomArrayElement(LANDSCAPE),
+  url: `photos/${id}.jpg`,
+  description: getRandomArrayElement(DESCRIPTIONS),
   likes: getRandomInteger(Like.MIN, Like.MAX),
   comments: createPhotoComments()
 });
 
 
-const generatePhotos = () => Array.from({length: PHOTO_PICTURE}, (_, index) => createPhoto(index + 1));
+const generatePhotos = () => Array.from({length: PHOTO_AMOUNT}, (_, index) => createPhoto(index + 1));
 
 const photos = generatePhotos();
+// eslint-disable-next-line no-console
 console.log(photos);
 
 
