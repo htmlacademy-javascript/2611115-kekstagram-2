@@ -1,4 +1,4 @@
-/*написла функции*/
+// data.js
 const PHOTO_AMOUNT = 25;
 const COMMENT_NAMES = ['Артём', 'Мария', 'Иван', 'Ольга', 'Дмитрий', 'Анна', 'Сергей'];
 const COMMENT_MESSAGES = [
@@ -35,7 +35,7 @@ const Comment = {
   MAX: 30
 };
 
-
+// util.js
 const getRandomInteger = (a, b) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -45,7 +45,7 @@ const getRandomInteger = (a, b) => {
 
 
 const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
-
+// photo.js
 const createComment = () => ({
   id: Date.now() + getRandomInteger(CommentId.MIN, CommentId.MAX),
   avatar: `img/avatar-${getRandomInteger(Avatar.MIN, Avatar.MAX)}.svg`,
@@ -66,7 +66,7 @@ const createPhoto = (id) => ({
   comments: createPhotoComments()
 });
 
-
+// main.js
 const generatePhotos = () => Array.from({length: PHOTO_AMOUNT}, (_, index) => createPhoto(index + 1));
 
 const photos = generatePhotos();
