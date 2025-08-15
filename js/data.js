@@ -44,6 +44,7 @@ const getRandomInteger = (a, b) => {
 const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
 
+
 const createComment = () => ({
   id: Date.now() + getRandomInteger(CommentId.MIN, CommentId.MAX),
   avatar: `img/avatar-${getRandomInteger(Avatar.MIN, Avatar.MAX)}.svg`,
