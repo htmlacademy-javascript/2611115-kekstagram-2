@@ -1,3 +1,4 @@
+import { getRandomInteger, getRandomArrayElement } from '/util.js';
 const PHOTO_AMOUNT = 25;
 const COMMENT_NAMES = ['Артём', 'Мария', 'Иван', 'Ольга', 'Дмитрий', 'Анна', 'Сергей'];
 const COMMENT_MESSAGES = [
@@ -33,18 +34,6 @@ const Comment = {
   MIN: 0,
   MAX: 30
 };
-const getRandomInteger = (a, b) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-  const result = Math.random() * (upper - lower + 1) + lower;
-  return Math.floor(result);
-};
-
-
-const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
-
-
-
 const createComment = () => ({
   id: Date.now() + getRandomInteger(CommentId.MIN, CommentId.MAX),
   avatar: `img/avatar-${getRandomInteger(Avatar.MIN, Avatar.MAX)}.svg`,
@@ -65,3 +54,4 @@ const createPhoto = (id) => ({
   comments: createPhotoComments()
 });
 const generatePhotos = () => Array.from({length: PHOTO_AMOUNT}, (_, index) => createPhoto(index + 1));
+export { generatePhotos };

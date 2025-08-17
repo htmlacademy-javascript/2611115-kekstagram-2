@@ -7,10 +7,4 @@ const getRandomInteger = (a, b) => {
 
 
 const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
-// photo.js
-const createComment = () => ({
-  id: Date.now() + getRandomInteger(CommentId.MIN, CommentId.MAX),
-  avatar: `img/avatar-${getRandomInteger(Avatar.MIN, Avatar.MAX)}.svg`,
-  message: getRandomArrayElement(COMMENT_MESSAGES),
-  name: getRandomArrayElement(COMMENT_NAMES)
-});
+export { getRandomInteger, getRandomArrayElement};
