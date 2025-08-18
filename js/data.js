@@ -1,4 +1,4 @@
-import { getRandomInteger, getRandomArrayElement } from '/util.js';
+import { getRandomInteger, getRandomArrayElement } from './util.js';
 const PHOTO_AMOUNT = 25;
 const COMMENT_NAMES = ['Артём', 'Мария', 'Иван', 'Ольга', 'Дмитрий', 'Анна', 'Сергей'];
 const COMMENT_MESSAGES = [
