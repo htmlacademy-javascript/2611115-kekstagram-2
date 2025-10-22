@@ -1,7 +1,7 @@
 
 import { generatePhotos } from './data.js';
+import { renderThumbnails } from './thumbnails.js';
 const photos = generatePhotos();
-// eslint-disable-next-line no-console
-console.log(photos);
+renderThumbnails(photos);
 
 
