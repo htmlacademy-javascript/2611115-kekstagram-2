@@ -8,18 +8,19 @@ const socialCommentCount = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 const cancelButton = bigPicture.querySelector('.big-picture__cancel');
 const picturesContainer = document.querySelector('.pictures');
+const commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
 
-function createComment(comment) {
-  const commentElement = document.createElement('li');
-  commentElement.classList.add('social__comment');
-  commentElement.innerHTML = `
-    <img class="social__picture" src="${comment.avatar}" alt="${comment.name}" width="35" height="35">
-    <p class="social__text">${comment.message}</p>
-  `;
+const createComment = (comment) => {
+  const commentElement = commentTemplate.cloneNode(true);
+  const commentImage = commentElement.querySelector('.social__picture');
+  const commentText = commentElement.querySelector('.social__text');
+  commentImage.src = comment.avatar;
+  commentImage.alt = comment.name;
+  commentText.textContent = comment.message;
   return commentElement;
-}
+};
 
-function renderComments(comments) {
+const renderComments = (comments) => {
   socialComments.innerHTML = '';
   const fragment = document.createDocumentFragment();
   comments.forEach((comment) => {
@@ -27,9 +28,9 @@ function renderComments(comments) {
     fragment.appendChild(commentElement);
   });
   socialComments.appendChild(fragment);
-}
+};
 
-function openBigPicture(pictureData) {
+const openBigPicture = (pictureData) => {
   bigPictureImg.src = pictureData.url;
   bigPictureImg.alt = pictureData.description;
   likesCount.textContent = pictureData.likes;
@@ -46,9 +47,9 @@ function openBigPicture(pictureData) {
   document.addEventListener('keydown', onDocumentKeydown);
   cancelButton.addEventListener('click', onCancelButtonClick);
   bigPicture.addEventListener('click', onOverlayClick);
-}
+};
 
-function onPictureClick(evt, picturesData) {
+const onPictureClick = (evt, picturesData) => {
   const pictureElement = evt.target.closest('.picture');
   if (pictureElement) {
     evt.preventDefault();
@@ -58,13 +59,21 @@ function onPictureClick(evt, picturesData) {
       openBigPicture(pictureData);
     }
   }
-}
+};
 
-function initPictureHandlers(picturesData) {
+const initPictureHandlers = (picturesData) => {
   picturesContainer.addEventListener('click', (evt) => {
     onPictureClick(evt, picturesData);
   });
-}
+};
+
+const closeBigPicture = () => {
+  bigPicture.classList.add('hidden');
+  body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onDocumentKeydown);
+  cancelButton.removeEventListener('click', onCancelButtonClick);
+  bigPicture.removeEventListener('click', onOverlayClick);
+};
 
 function onDocumentKeydown(evt) {
   if (evt.key === 'Escape') {
@@ -81,14 +90,6 @@ function onOverlayClick(evt) {
 
 function onCancelButtonClick() {
   closeBigPicture();
-}
-
-function closeBigPicture() {
-  bigPicture.classList.add('hidden');
-  body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onDocumentKeydown);
-  cancelButton.removeEventListener('click', onCancelButtonClick);
-  bigPicture.removeEventListener('click', onOverlayClick);
 }
 
 export { openBigPicture, initPictureHandlers };
