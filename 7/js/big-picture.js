@@ -37,7 +37,7 @@ const renderComments = () => {
   const socialCommentTotalCount = bigPicture.querySelector('.social__comment-total-count');
   socialCommentShownCount.textContent = commentsShown;
   socialCommentTotalCount.textContent = currentComments.length;
-  if (commentsShown >= currentComments.length) {
+  if (commentsShown >= currentComments.length || currentComments.length <= COMMENTS_PER_PORTION) {
     commentsLoader.classList.add('hidden');
   } else {
     commentsLoader.classList.remove('hidden');
@@ -65,7 +65,11 @@ const openBigPicture = (pictureData) => {
   commentsShown = Math.min(COMMENTS_PER_PORTION, currentComments.length);
   renderComments();
   socialCommentCount.classList.remove('hidden');
-  commentsLoader.classList.remove('hidden');
+  if (currentComments.length <= COMMENTS_PER_PORTION) {
+    commentsLoader.classList.add('hidden');
+  } else {
+    commentsLoader.classList.remove('hidden');
+  }
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
