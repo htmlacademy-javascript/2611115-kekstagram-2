@@ -4,18 +4,17 @@ const HASHTAG_MIN_LENGTH = 2;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const COMMENT_MAX_LENGTH = 140;
 
-const submitButton = document.querySelector('.img-upload__submit');
+//const submitButton = document.querySelector('.img-upload__submit');
 const form = document.querySelector('.img-upload__form');
+//const blockSubmitButton = () => {'
+//'submitButton.disabled = true;'
+//submitButton.textContent = ''Отправляю...'';}'
 
-const blockSubmitButton = () => {
-  submitButton.disabled = true;
-  submitButton.textContent = 'Отправляю...';
-};
+//const unblockSubmitButton = () => {
+//submitButton.disabled = false;
+//submitButton.textContent = """''Отправить';''
 
-const unblockSubmitButton = () => {
-  submitButton.disabled = false;
-  submitButton.textContent = 'Отправить';
-};
+//};
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -33,48 +32,39 @@ const validateHashtags = (value) => {
 
   const hashtags = value.trim().toLowerCase().split(/\s+/);
   if (hashtags.length > HASHTAG_MAX_COUNT) {
-    return false;
+    return 'count';
   }
 
   const uniqueHashtags = new Set(hashtags);
   if (uniqueHashtags.size !== hashtags.length) {
-    return false;
-  }
-
-  return hashtags.every((hashtag) => {
-    if (hashtag === '#') {
-      return false;
-    }
-    return HASHTAG_REGEX.test(hashtag);
-  });
-};
-
-const getHashtagErrorMessage = (value) => {
-  if (!value.trim()) {
-    return '';
-  }
-
-  const hashtags = value.trim().toLowerCase().split(/\s+/);
-
-  if (hashtags.length > HASHTAG_MAX_COUNT) {
-    return `Превышено количество хэштегов (максимум ${HASHTAG_MAX_COUNT})`;
-  }
-
-  const uniqueHashtags = new Set(hashtags);
-  if (uniqueHashtags.size !== hashtags.length) {
-    return 'Хэштеги не должны повторяться';
+    return 'duplicate';
   }
 
   for (const hashtag of hashtags) {
     if (hashtag === '#') {
-      return 'Хэштег не может состоять только из решётки';
+      return 'only-hash';
     }
     if (!HASHTAG_REGEX.test(hashtag)) {
-      return `Хэштег должен начинаться с #, содержать только буквы и цифры, и быть длиной от ${HASHTAG_MIN_LENGTH} до ${HASHTAG_MAX_LENGTH} символов`;
+      return 'invalid-format';
     }
   }
 
-  return '';
+  return true;
+};
+
+const getHashtagErrorMessage = (validationResult) => {
+  if (validationResult === true) {
+    return '';
+  }
+
+  const errorMessages = {
+    'count': `Превышено количество хэштегов (максимум ${HASHTAG_MAX_COUNT})`,
+    'duplicate': 'Хэштеги не должны повторяться',
+    'only-hash': 'Хэштег не может состоять только из решётки',
+    'invalid-format': `Хэштег должен начинаться с #, содержать только буквы и цифры, и быть длиной от ${HASHTAG_MIN_LENGTH} до ${HASHTAG_MAX_LENGTH} символов`
+  };
+
+  return errorMessages[validationResult] || 'Некорректный хэштег';
 };
 
 const validateComment = (value) => !value || value.length <= COMMENT_MAX_LENGTH;
@@ -118,11 +108,10 @@ document.addEventListener('keydown', (evt) => {
     }
   }
 });
+
 form.addEventListener('submit', (evt) => {
-  evt.preventDefault();
   const isValid = pristine.validate();
   if (!isValid) {
-    return;
+    evt.preventDefault();
   }
-  console.log('Форма валидна, можно отправлять');
 });
