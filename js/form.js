@@ -4,13 +4,6 @@ const HASHTAG_MIN_LENGTH = 2;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const COMMENT_MAX_LENGTH = 140;
 
-const form = document.querySelector('.img-upload__form');
-const cancelButton = document.querySelector('.img-upload__cancel');
-const hashtagInput = form.querySelector('.text__hashtags');
-const commentInput = form.querySelector('.text__description');
-const fileInput = form.querySelector('.img-upload__input');
-const overlay = document.querySelector('.img-upload__overlay');
-
 const HashtagError = {
   COUNT: 'count',
   DUPLICATE: 'duplicate',
@@ -24,6 +17,13 @@ const errorMessages = {
   [HashtagError.ONLY_HASH]: 'Хэштег не может состоять только из решётки',
   [HashtagError.INVALID_FORMAT]: `Хэштег должен начинаться с #, содержать только буквы и цифры, и быть длиной от ${HASHTAG_MIN_LENGTH} до ${HASHTAG_MAX_LENGTH} символов`
 };
+
+const form = document.querySelector('.img-upload__form');
+const cancelButton = document.querySelector('.img-upload__cancel');
+const hashtagInput = form.querySelector('.text__hashtags');
+const commentInput = form.querySelector('.text__description');
+const fileInput = form.querySelector('.img-upload__input');
+const overlay = document.querySelector('.img-upload__overlay');
 
 let hashtagErrorMessage = '';
 
@@ -85,12 +85,12 @@ const resetForm = () => {
   form.reset();
   pristine.reset();
 };
+
 const closeForm = () => {
   overlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   resetForm();
 };
-
 
 const onFileInputChange = (evt) => {
   if (evt.target.files && evt.target.files[0]) {
