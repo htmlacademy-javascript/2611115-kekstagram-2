@@ -1,3 +1,6 @@
+import { resetScale } from './scale.js';
+import { resetEffects } from './effects.js';
+
 const HASHTAG_MAX_COUNT = 5;
 const HASHTAG_MAX_LENGTH = 20;
 const HASHTAG_MIN_LENGTH = 2;
@@ -84,6 +87,8 @@ const openForm = () => {
 const resetForm = () => {
   form.reset();
   pristine.reset();
+  resetScale();
+  resetEffects();
 };
 
 const closeForm = () => {
@@ -130,3 +135,6 @@ hashtagInput.addEventListener('input', () => {
 commentInput.addEventListener('input', () => {
   pristine.validate(commentInput);
 });
+
+
+export { closeForm, resetForm };
