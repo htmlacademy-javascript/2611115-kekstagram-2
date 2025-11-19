@@ -129,12 +129,8 @@ document.addEventListener('keydown', onDocumentKeydown);
 form.addEventListener('submit', onFormSubmit);
 
 hashtagInput.addEventListener('input', () => {
-  pristine.validate(hashtagInput);
+  commentInput.addEventListener('input', () => {
+    pristine.validate(commentInput);
+  });
 });
 
-commentInput.addEventListener('input', () => {
-  pristine.validate(commentInput);
-});
-
-
-export { closeForm, resetForm };

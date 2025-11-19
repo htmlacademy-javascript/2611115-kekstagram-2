@@ -1,7 +1,6 @@
 const imagePreview = document.querySelector('.img-upload__preview img');
 const effectLevelContainer = document.querySelector('.img-upload__effect-level');
 const effectLevelValue = document.querySelector('.effect-level__value');
-const effectLevelValueInput = document.querySelector('.effect-level__value-input');
 const effectLevelSlider = document.querySelector('.effect-level__slider');
 const effectRadios = document.querySelectorAll('input[name="effect"]');
 
@@ -52,7 +51,7 @@ const effectsConfig = {
   }
 };
 
-function initSlider() {
+const initSlider = () => {
   noUiSlider.create(effectLevelSlider, {
     range: {
       min: 0,
@@ -62,36 +61,31 @@ function initSlider() {
     step: 1,
     connect: 'lower',
     format: {
-      to: function (value) {
-        return value.toFixed(0);
-      },
-      from: function (value) {
-        return parseFloat(value);
-      }
+      to: (value) => value.toFixed(0),
+      from: (value) => parseFloat(value)
     }
   });
+  const updateEffect = (value) => {
+    const effect = effectsConfig[currentEffect];
+    effectLevelValue.value = value;
+    const filterValue = effect.filter(value);
+    imagePreview.style.filter = filterValue;
+  };
 
   effectLevelSlider.noUiSlider.on('update', (values, handle) => {
     const value = parseFloat(values[handle]);
     updateEffect(value);
   });
-}
+};
 
-function updateEffect(value) {
-  const effect = effectsConfig[currentEffect];
-  effectLevelValue.textContent = `${Math.round(value)}%`;
-  effectLevelValueInput.value = value;
-  const filterValue = effect.filter(value);
-  imagePreview.style.filter = filterValue;
-}
 
-function switchEffect(effectName) {
+const switchEffect = (effectName) => {
   currentEffect = effectName;
 
   if (effectName === 'none') {
     effectLevelContainer.style.display = 'none';
     imagePreview.style.filter = '';
-    effectLevelValueInput.value = '';
+    effectLevelValue.value = '';
   } else {
     effectLevelContainer.style.display = 'block';
 
@@ -104,29 +98,27 @@ function switchEffect(effectName) {
       step: effect.step,
       start: effect.max,
       format: {
-        to: function (value) {
+        to: (value) => {
           if (effectName === 'chrome' || effectName === 'sepia') {
             return value.toFixed(1);
           }
           return value.toFixed(effectName === 'marvin' ? 0 : 1);
         },
-        from: function (value) {
-          return parseFloat(value);
-        }
+        from: (value) => parseFloat(value)
       }
     });
     effectLevelSlider.noUiSlider.set(effect.max);
   }
-}
+};
 
-function resetEffects() {
+const resetEffects = () => {
   switchEffect('none');
 
   const noneRadio = document.querySelector('input[value="none"]');
   if (noneRadio) {
     noneRadio.checked = true;
   }
-}
+};
 
 effectRadios.forEach((radio) => {
   radio.addEventListener('change', (evt) => {
@@ -134,11 +126,13 @@ effectRadios.forEach((radio) => {
   });
 });
 
-function initEffects() {
+const initEffects = () => {
   initSlider();
   switchEffect('none');
-}
+};
 
-document.addEventListener('DOMContentLoaded', initEffects);
+document.addEventListener('DOMContentLoaded', () => {
+  initEffects();
+});
 
-export { resetEffects, switchEffect };
+export { resetEffects };

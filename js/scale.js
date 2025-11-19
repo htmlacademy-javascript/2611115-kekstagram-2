@@ -32,4 +32,4 @@ const resetScale = () => {
 scaleControlSmaller.addEventListener('click', onScaleSmallerClick);
 scaleControlBigger.addEventListener('click', onScaleBiggerClick);
 
-export { resetScale, updateScale, currentScale };
+export { resetScale };
