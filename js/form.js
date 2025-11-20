@@ -39,6 +39,7 @@ const pristine = new Pristine(form, {
   errorTextClass: 'pristine-error'
 });
 
+
 const validateHashtags = (value) => {
   hashtagErrorMessage = '';
   if (!value.trim()) {
@@ -46,16 +47,19 @@ const validateHashtags = (value) => {
   }
 
   const hashtags = value.trim().toLowerCase().split(/\s+/);
+
   if (hashtags.length > HASHTAG_MAX_COUNT) {
     hashtagErrorMessage = errorMessages[HashtagError.COUNT];
     return false;
   }
+
 
   const uniqueHashtags = new Set(hashtags);
   if (uniqueHashtags.size !== hashtags.length) {
     hashtagErrorMessage = errorMessages[HashtagError.DUPLICATE];
     return false;
   }
+
 
   for (const hashtag of hashtags) {
     if (hashtag === '#') {
@@ -72,6 +76,7 @@ const validateHashtags = (value) => {
 };
 
 const getHashtagErrorMessage = () => hashtagErrorMessage;
+
 
 const validateComment = (value) => !value || value.length <= COMMENT_MAX_LENGTH;
 const getCommentErrorMessage = () => `Длина комментария не может превышать ${COMMENT_MAX_LENGTH} символов`;
@@ -128,9 +133,11 @@ cancelButton.addEventListener('click', onCloseButtonClick);
 document.addEventListener('keydown', onDocumentKeydown);
 form.addEventListener('submit', onFormSubmit);
 
+
 hashtagInput.addEventListener('input', () => {
-  commentInput.addEventListener('input', () => {
-    pristine.validate(commentInput);
-  });
+  pristine.validate(hashtagInput);
 });
 
+commentInput.addEventListener('input', () => {
+  pristine.validate(commentInput);
+});

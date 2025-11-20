@@ -50,7 +50,12 @@ const effectsConfig = {
     filter: (value) => `brightness(${value})`
   }
 };
-
+const updateEffect = (value) => {
+  const effect = effectsConfig[currentEffect];
+  effectLevelValue.value = value;
+  const filterValue = effect.filter(value);
+  imagePreview.style.filter = filterValue;
+};
 const initSlider = () => {
   noUiSlider.create(effectLevelSlider, {
     range: {
@@ -65,12 +70,6 @@ const initSlider = () => {
       from: (value) => parseFloat(value)
     }
   });
-  const updateEffect = (value) => {
-    const effect = effectsConfig[currentEffect];
-    effectLevelValue.value = value;
-    const filterValue = effect.filter(value);
-    imagePreview.style.filter = filterValue;
-  };
 
   effectLevelSlider.noUiSlider.on('update', (values, handle) => {
     const value = parseFloat(values[handle]);
