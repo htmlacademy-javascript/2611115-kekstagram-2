@@ -1,5 +1,6 @@
 import { resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
+import { sendData } from './api.js';
 
 const HASHTAG_MAX_COUNT = 5;
 const HASHTAG_MAX_LENGTH = 20;
@@ -27,6 +28,7 @@ const hashtagInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
 const fileInput = form.querySelector('.img-upload__input');
 const overlay = document.querySelector('.img-upload__overlay');
+const submitButton = form.querySelector('.img-upload__submit');
 
 let hashtagErrorMessage = '';
 
@@ -38,7 +40,6 @@ const pristine = new Pristine(form, {
   errorTextTag: 'div',
   errorTextClass: 'pristine-error'
 });
-
 
 const validateHashtags = (value) => {
   hashtagErrorMessage = '';
@@ -53,13 +54,11 @@ const validateHashtags = (value) => {
     return false;
   }
 
-
   const uniqueHashtags = new Set(hashtags);
   if (uniqueHashtags.size !== hashtags.length) {
     hashtagErrorMessage = errorMessages[HashtagError.DUPLICATE];
     return false;
   }
-
 
   for (const hashtag of hashtags) {
     if (hashtag === '#') {
@@ -77,13 +76,38 @@ const validateHashtags = (value) => {
 
 const getHashtagErrorMessage = () => hashtagErrorMessage;
 
-
 const validateComment = (value) => !value || value.length <= COMMENT_MAX_LENGTH;
 const getCommentErrorMessage = () => `Длина комментария не может превышать ${COMMENT_MAX_LENGTH} символов`;
 
 pristine.addValidator(hashtagInput, validateHashtags, getHashtagErrorMessage);
 pristine.addValidator(commentInput, validateComment, getCommentErrorMessage);
 
+const showMessage = (templateId) => {
+  const template = document.querySelector(`#${templateId}`).content.querySelector(`.${templateId}`);
+  const messageElement = template.cloneNode(true);
+  document.body.appendChild(messageElement);
+
+
+  messageElement.addEventListener('click', onMessageClick);
+  document.addEventListener('keydown', onDocumentKeydown);
+};
+ const closeMessage = () => {
+    messageElement.remove();
+  };
+
+  function onDocumentKeydown(evt) {
+  if (evt.key === 'Escape') {
+    closeMessage();
+    document.removeEventListener('keydown', onDocumentKeydown);
+  }
+}
+
+  const onMessageClick = (evt) => {
+    if (evt.target === messageElement || evt.target.closest(`.${templateId}__button`)) {
+      closeMessage();
+      messageElement.removeEventListener('click', onMessageClick);
+    }
+  };
 const openForm = () => {
   overlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -102,6 +126,16 @@ const closeForm = () => {
   resetForm();
 };
 
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Отправляю...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Опубликовать';
+};
+
 const onFileInputChange = (evt) => {
   if (evt.target.files && evt.target.files[0]) {
     openForm();
@@ -112,32 +146,49 @@ const onCloseButtonClick = () => {
   closeForm();
 };
 
-const onDocumentKeydown = (evt) => {
+function onDocumentKeydown(evt) {
   if (evt.key === 'Escape') {
     if (document.activeElement !== hashtagInput && document.activeElement !== commentInput) {
       closeForm();
     }
   }
-};
+}
 
-const onFormSubmit = (evt) => {
+const onFormSubmit = async (evt) => {
+  evt.preventDefault();
+
   const isValid = pristine.validate();
   if (!isValid) {
-    evt.preventDefault();
-    pristine.validate(true);
+    return;
+  }
+
+  const formData = new FormData(form);
+
+  try {
+    blockSubmitButton();
+    await sendData(formData);
+    closeForm();
+    showMessage('success');
+  } catch (error) {
+    showMessage('error');
+  } finally {
+    unblockSubmitButton();
   }
 };
 
-fileInput.addEventListener('change', onFileInputChange);
-cancelButton.addEventListener('click', onCloseButtonClick);
-document.addEventListener('keydown', onDocumentKeydown);
-form.addEventListener('submit', onFormSubmit);
+const initFormHandlers = () => {
+  fileInput.addEventListener('change', onFileInputChange);
+  cancelButton.addEventListener('click', onCloseButtonClick);
+  document.addEventListener('keydown', onDocumentKeydown);
+  form.addEventListener('submit', onFormSubmit);
 
+  hashtagInput.addEventListener('input', () => {
+    pristine.validate(hashtagInput);
+  });
 
-hashtagInput.addEventListener('input', () => {
-  pristine.validate(hashtagInput);
-});
+  commentInput.addEventListener('input', () => {
+    pristine.validate(commentInput);
+  });
+};
 
-commentInput.addEventListener('input', () => {
-  pristine.validate(commentInput);
-});
+export { initFormHandlers };
