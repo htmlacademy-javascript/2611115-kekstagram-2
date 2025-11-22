@@ -1,8 +1,20 @@
 import { initPictureHandlers } from './big-picture.js';
-import { generatePhotos } from './data.js';
 import { renderThumbnails } from './thumbnails.js';
-import './form.js';
-const photos = generatePhotos();
-renderThumbnails(photos);
-initPictureHandlers(photos);
+import { getData } from './fetch.js';
+import { showErrorMessage } from './util.js';
+import { initFormHandlers } from './form.js';
+
+const loadPhotos = async () => {
+  try {
+    const photos = await getData();
+    renderThumbnails(photos);
+    initPictureHandlers(photos);
+  } catch (error) {
+    showErrorMessage();
+  }
+};
+loadPhotos();
+
+initFormHandlers();
+
 
