@@ -1,26 +1,7 @@
 import { resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
-import { sendData } from './api.js';
-
-const HASHTAG_MAX_COUNT = 5;
-const HASHTAG_MAX_LENGTH = 20;
-const HASHTAG_MIN_LENGTH = 2;
-const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
-const COMMENT_MAX_LENGTH = 140;
-
-const HashtagError = {
-  COUNT: 'count',
-  DUPLICATE: 'duplicate',
-  ONLY_HASH: 'only-hash',
-  INVALID_FORMAT: 'invalid-format'
-};
-
-const errorMessages = {
-  [HashtagError.COUNT]: `Превышено количество хэштегов (максимум ${HASHTAG_MAX_COUNT})`,
-  [HashtagError.DUPLICATE]: 'Хэштеги не должны повторяться',
-  [HashtagError.ONLY_HASH]: 'Хэштег не может состоять только из решётки',
-  [HashtagError.INVALID_FORMAT]: `Хэштег должен начинаться с #, содержать только буквы и цифры, и быть длиной от ${HASHTAG_MIN_LENGTH} до ${HASHTAG_MAX_LENGTH} символов`
-};
+import { sendData } from './fetch.js';
+import { isValid, resetValidation } from './validation.js';
 
 const form = document.querySelector('.img-upload__form');
 const cancelButton = document.querySelector('.img-upload__cancel');
@@ -30,84 +11,32 @@ const fileInput = form.querySelector('.img-upload__input');
 const overlay = document.querySelector('.img-upload__overlay');
 const submitButton = form.querySelector('.img-upload__submit');
 
-let hashtagErrorMessage = '';
-
-const pristine = new Pristine(form, {
-  classTo: 'img-upload__field-wrapper',
-  errorClass: 'img-upload__field-wrapper--error',
-  successClass: 'img-upload__field-wrapper--success',
-  errorTextParent: 'img-upload__field-wrapper',
-  errorTextTag: 'div',
-  errorTextClass: 'pristine-error'
-});
-
-const validateHashtags = (value) => {
-  hashtagErrorMessage = '';
-  if (!value.trim()) {
-    return true;
-  }
-
-  const hashtags = value.trim().toLowerCase().split(/\s+/);
-
-  if (hashtags.length > HASHTAG_MAX_COUNT) {
-    hashtagErrorMessage = errorMessages[HashtagError.COUNT];
-    return false;
-  }
-
-  const uniqueHashtags = new Set(hashtags);
-  if (uniqueHashtags.size !== hashtags.length) {
-    hashtagErrorMessage = errorMessages[HashtagError.DUPLICATE];
-    return false;
-  }
-
-  for (const hashtag of hashtags) {
-    if (hashtag === '#') {
-      hashtagErrorMessage = errorMessages[HashtagError.ONLY_HASH];
-      return false;
-    }
-    if (!HASHTAG_REGEX.test(hashtag)) {
-      hashtagErrorMessage = errorMessages[HashtagError.INVALID_FORMAT];
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const getHashtagErrorMessage = () => hashtagErrorMessage;
-
-const validateComment = (value) => !value || value.length <= COMMENT_MAX_LENGTH;
-const getCommentErrorMessage = () => `Длина комментария не может превышать ${COMMENT_MAX_LENGTH} символов`;
-
-pristine.addValidator(hashtagInput, validateHashtags, getHashtagErrorMessage);
-pristine.addValidator(commentInput, validateComment, getCommentErrorMessage);
-
 const showMessage = (templateId) => {
   const template = document.querySelector(`#${templateId}`).content.querySelector(`.${templateId}`);
   const messageElement = template.cloneNode(true);
   document.body.appendChild(messageElement);
 
-
-  messageElement.addEventListener('click', onMessageClick);
+  messageElement.addEventListener('click', ({ target }) => {
+    if (target.classList.contains(templateId) || target.classList.contains(`${templateId}__button`)) {
+      messageElement.remove();
+    }
+  });
   document.addEventListener('keydown', onDocumentKeydown);
 };
- const closeMessage = () => {
-    messageElement.remove();
-  };
 
-  function onDocumentKeydown(evt) {
+function onDocumentKeydown(evt) {
   if (evt.key === 'Escape') {
-    closeMessage();
+    const success = document.querySelector('.success');
+    const error = document.querySelector('.error');
+    if (success) {
+      success.remove();
+    } else {
+      error.remove();
+    }
     document.removeEventListener('keydown', onDocumentKeydown);
   }
 }
 
-  const onMessageClick = (evt) => {
-    if (evt.target === messageElement || evt.target.closest(`.${templateId}__button`)) {
-      closeMessage();
-      messageElement.removeEventListener('click', onMessageClick);
-    }
-  };
 const openForm = () => {
   overlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -115,7 +44,7 @@ const openForm = () => {
 
 const resetForm = () => {
   form.reset();
-  pristine.reset();
+  resetValidation();
   resetScale();
   resetEffects();
 };
@@ -136,19 +65,20 @@ const unblockSubmitButton = () => {
   submitButton.textContent = 'Опубликовать';
 };
 
-const onFileInputChange = (evt) => {
-  if (evt.target.files && evt.target.files[0]) {
-    openForm();
-  }
+const onFileInputChange = () => {
+  openForm();
 };
 
 const onCloseButtonClick = () => {
   closeForm();
 };
 
-function onDocumentKeydown(evt) {
+function onFormKeydown(evt) {
   if (evt.key === 'Escape') {
-    if (document.activeElement !== hashtagInput && document.activeElement !== commentInput) {
+    if (document.activeElement !== hashtagInput
+      && document.activeElement !== commentInput
+      && !document.querySelector('.error')
+    ) {
       closeForm();
     }
   }
@@ -157,8 +87,7 @@ function onDocumentKeydown(evt) {
 const onFormSubmit = async (evt) => {
   evt.preventDefault();
 
-  const isValid = pristine.validate();
-  if (!isValid) {
+  if (!isValid()) {
     return;
   }
 
@@ -179,16 +108,9 @@ const onFormSubmit = async (evt) => {
 const initFormHandlers = () => {
   fileInput.addEventListener('change', onFileInputChange);
   cancelButton.addEventListener('click', onCloseButtonClick);
-  document.addEventListener('keydown', onDocumentKeydown);
+  document.addEventListener('keydown', onFormKeydown);
   form.addEventListener('submit', onFormSubmit);
-
-  hashtagInput.addEventListener('input', () => {
-    pristine.validate(hashtagInput);
-  });
-
-  commentInput.addEventListener('input', () => {
-    pristine.validate(commentInput);
-  });
 };
 
 export { initFormHandlers };
+
